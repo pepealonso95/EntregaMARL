@@ -1,0 +1,10 @@
+name: pettingzoo_games
+channels:
+  - https://repo.anaconda.com/pkgs/main
+  - https://repo.anaconda.com/pkgs/r
+dependencies:
+  - python=3.11
+  - numpy
+  - gymnasium
+  - conda-forge::pettingzoo
+prefix: /opt/anaconda3/envs/pettingzoo_games

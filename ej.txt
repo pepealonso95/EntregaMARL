@@ -1,0 +1,3 @@
+primero hacer un archivo por agente para fijarse que ese agente en particular no explota al jugar todos los juegos. solo de pocos episodios.
+Despues entreno cada uno con mas episodios por cada juego con distintos parametros.
+Despues los hiciste competir entre ellos en todas las combinaciones.
