@@ -34,6 +34,8 @@ class Blotto(SimultaneousGame):
         # utility matrix
         self.set_R()
 
+        self.reset() # Initialize observations, rewards, etc.
+
     def set_moves(self):
         s = ''.join(map(chr,range(65,65+self.S)))
         h = map(lambda x: to_ord(x), product(s, repeat=self.N))

@@ -135,10 +135,21 @@ class IQLAgent(Agent):
         state = self._obs_to_state(obs)
         
         # Get external reward from the environment
-        reward = self.game.reward(self.agent)
-        
+        reward_from_game = self.game.reward(self.agent)
+
+        # If reward_from_game is None, it might indicate an issue with the training loop order
+        # (e.g., update called before step, or game.reset() rewards not overridden by step).
+        # Default to 0.0 to prevent TypeError, but this could mask underlying issues.
+        current_reward = 0.0
+        if reward_from_game is not None:
+            current_reward = reward_from_game
+        # else:
+            # Consider adding a log or warning here if None rewards are frequent,
+            # as it points to a potential logical flaw in the interaction loop.
+            # print(f"Warning: Agent {self.agent} received None reward from game. Using 0.0 for update.")
+
         # Apply reward shaping if enabled
-        shaped_reward = reward
+        shaped_reward = current_reward # Initialize with a guaranteed float
         if self.use_reward_shaping and self.last_obs is not None:
             # Extract state information for both current and previous observations
             prev_state_features = self._extract_state_features(self.last_obs)

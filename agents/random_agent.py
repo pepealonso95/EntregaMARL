@@ -20,3 +20,6 @@ class RandomAgent(Agent):
     
     def policy(self):
         return self._policy
+    
+    def reset(self):
+        pass
