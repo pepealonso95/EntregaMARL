@@ -8,7 +8,7 @@ class FictitiousPlay(Agent):
     
     def __init__(self, game: SimultaneousGame, agent: AgentID, initial=None, seed=None) -> None:
         super().__init__(game=game, agent=agent)
-        if seed is not None:  # Ensure np.random.seed is called only if seed is not None
+        if seed is not None:
             np.random.seed(seed=seed)
         
         self.count: dict[AgentID, ndarray] = {}
@@ -19,14 +19,12 @@ class FictitiousPlay(Agent):
                isinstance(initial[a], (list, np.ndarray)) and len(initial[a]) == num_actions:
                 self.count[a] = np.array(initial[a], dtype=float)
             else:
-                # Initialize with ones to avoid division by zero if an agent hasn't acted
                 self.count[a] = np.ones(num_actions, dtype=float) 
 
         self.learned_policy: dict[AgentID, ndarray] = {}
         for a in game.agents:
             sum_counts = np.sum(self.count[a])
             if sum_counts == 0:
-                # Default to uniform policy if sum_counts is zero
                 num_actions = game.action_spaces[a].n
                 self.learned_policy[a] = np.ones(num_actions, dtype=float) / num_actions if num_actions > 0 else np.array([], dtype=float)
             else:
@@ -37,11 +35,8 @@ class FictitiousPlay(Agent):
         agents_actions = list(map(lambda agent: list(g.action_iter(agent)), g.agents))
         rewards: dict[tuple, float] = {}
         
-        # Calcular los rewards de agente para cada acción conjunta
         for joint_action in product(*agents_actions):
-            # Crear un diccionario de acciones para cada agente
             action_dict = {agent: action for agent, action in zip(g.agents, joint_action)}
-            # Calcular el reward para el agente actual con estas acciones
             g.set_actions(action_dict)
             rewards[tuple(joint_action)] = g.reward(self.agent)
             
@@ -81,9 +76,9 @@ class FictitiousPlay(Agent):
         num_actions = self.game.action_spaces[self.agent].n
         
         if num_actions == 0:
-            return 0  # Or raise error, no actions possible
+            return 0
 
-        if np.all(np.isclose(utility, utility[0] if len(utility) > 0 else 0.0)) or len(utility) == 0:  # Handles all same or empty
+        if np.all(np.isclose(utility, utility[0] if len(utility) > 0 else 0.0)) or len(utility) == 0:
             return np.random.choice(num_actions)
 
         max_utility = np.max(utility)
@@ -120,5 +115,4 @@ class FictitiousPlay(Agent):
                         self.learned_policy[other_agent_id] = self.count[other_agent_id] / sum_counts
 
     def action(self):
-        # self.update()  # Removed: The notebook's main loop calls update() after game.step()
         return self.bestresponse()

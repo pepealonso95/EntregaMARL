@@ -11,30 +11,26 @@ class Blotto(SimultaneousGame):
 
     def __init__(self, S=3, N=2):
         assert(N > 1 and N < S and S < 50)
-        self.S = S          # number of soldiers
-        self.N = N          # number of battle fields
+        self.S = S
+        self.N = N
 
-        # agents
         self.agents = ["agent_" + str(r) for r in range(2)]
         self.possible_agents = self.agents[:]
         self.agent_name_mapping = dict(zip(self.agents, list(range(self.num_agents))))
 
-        # actions
-        self.set_moves()                        # vectors (s_0, ..., s_{N-1})
-        self._num_actions = len(self._moves)    # number of actions
-        self.action_spaces = {                  # actions are vector indices      
+        self.set_moves()
+        self._num_actions = len(self._moves)
+        self.action_spaces = {
             agent: Discrete(self._num_actions) for agent in self.agents
         }
 
-        # observations
         self.observation_spaces = {
             agent: ActionDict for agent in self.agents
         }
 
-        # utility matrix
         self.set_R()
 
-        self.reset() # Initialize observations, rewards, etc.
+        self.reset()
 
     def set_moves(self):
         s = ''.join(map(chr,range(65,65+self.S)))
@@ -55,16 +51,13 @@ class Blotto(SimultaneousGame):
                 self._R[a][b] = self._U(np.array(self._moves[a]), np.array(self._moves[b]))
 
     def step(self, actions: ActionDict) -> tuple[ObsDict, dict[AgentID, float], dict[AgentID, bool], dict[AgentID, bool], dict[AgentID, dict]]:
-        # rewards
         (a0, a1) = tuple(map(lambda agent: actions[agent], self.agents))
         r = self._R[a0][a1]
         self.rewards[self.agents[0]] = r
         self.rewards[self.agents[1]] = -r
 
-        # observations
         self.observations = dict(map(lambda agent: (agent, actions), self.agents))
 
-        # etcetera
         self.terminations = dict(map(lambda agent: (agent, True), self.agents))
         self.truncations = dict(map(lambda agent: (agent, False), self.agents))
         self.infos = dict(map(lambda agent: (agent, {}), self.agents))
